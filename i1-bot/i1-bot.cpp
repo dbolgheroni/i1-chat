@@ -82,18 +82,23 @@ std::string run_cmd_stock(const std::string& stock) {
 }
 
 int main() {
-    std::string exchangeName = "i1-chat";
-    std::string routingKey = "i1-chat";
+    std::string exchangeName {"i1-chat"};
+    std::string routingKey {"room1"};
+
+    std::cout << "i1-bot debug messages" << std::endl;
 
     try {
+        std::cout << "connecting to broker" << std::endl;
         AmqpClient::Channel::ptr_t channel =
             AmqpClient::Channel::Create("localhost");
+        std::cout << "connected" << std::endl;
 
-        std::cout << "i1-bot debug messages" << std::endl;
+        // queue_name, passive, durable, exclusive, auto_delete
+        auto tmpQueueName = channel->DeclareQueue("", false, false, true, false);
+        channel->BindQueue(tmpQueueName, exchangeName, routingKey);
 
-        std::string queueName {"room1"};
-
-        std::string tag = channel->BasicConsume(queueName, "");
+        // queue, consumer_tag, no_local, no_ack, exclusive
+        std::string tag = channel->BasicConsume(tmpQueueName, "");
 
         while(1) {
             AmqpClient::Envelope::ptr_t envelope =
@@ -103,12 +108,7 @@ int main() {
                 auto message = envelope->Message();
                 auto say = parse_cmd(message);
 
-                std::cout << "publishing: " << say << std::endl;
-
-                AmqpClient::BasicMessage::ptr_t response =
-                    AmqpClient::BasicMessage::Create(say);
-
-                channel->BasicPublish(exchangeName, routingKey, response);
+                std::cout << "received: " << say << std::endl;
             }
         }
     } catch (const std::exception& e) {
