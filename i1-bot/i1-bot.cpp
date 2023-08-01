@@ -79,7 +79,7 @@ int main() {
     std::string exchangeName {"i1-chat"};
     std::string routingKey {"room1"};
 
-    std::cout << "i1-bot debug messages" << std::endl;
+    std::cout << "info: starting i1-bot" << std::endl;
 
     try {
         std::cout << "info: connecting to broker" << std::endl;
@@ -94,7 +94,9 @@ int main() {
         // queue, consumer_tag, no_local, no_ack, exclusive
         std::string tag = channel->BasicConsume(tmpQueueName, "");
 
-        while(1) {
+        // Since BasicConsumeMessage is blocking, wait on it until a new
+        // message arrives.
+        for(;;) {
             AmqpClient::Envelope::ptr_t envelope =
                 channel->BasicConsumeMessage(tag);
 
@@ -104,7 +106,7 @@ int main() {
                 std::string response;
 
                 if (is_cmd_stock(body)) {
-                    std::cout << "debug: received command /stock" << std::endl;
+                    std::cout << "info: received command /stock" << std::endl;
                     auto stock = parse_cmd_stock_arg(message->Body());
                     auto say = run_cmd_stock(stock);
 
