@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import sys
+import time
+
+import pika
+
+def main():
+    if len(sys.argv) < 4:
+        print(f'usage: {sys.argv[0]} user room message')
+        sys.exit(1)
+
+    conn = pika.BlockingConnection(
+        pika.ConnectionParameters(host='localhost'))
+
+    # channel
+    ch = conn.channel()
+
+    username = sys.argv[1]
+    room = sys.argv[2]
+    body = sys.argv[3] or 'hello'
+
+    print(f'sending message to {room}')
+    properties = pika.BasicProperties(headers={'username': username})
+    ch.basic_publish(
+        exchange='i1-chat',
+        routing_key=room,
+        body=body,
+        properties=properties)
+
+    conn.close()
+
+if __name__ == '__main__':
+    main()
