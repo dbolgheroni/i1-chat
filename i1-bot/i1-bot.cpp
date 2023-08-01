@@ -15,19 +15,12 @@ std::string parse_stock_price_from_csv(const std::string&);
 
 // Check if the body of the message contains a command and
 // reach Stooq if it has.
-std::string parse_cmd(const AmqpClient::BasicMessage::ptr_t message) {
-    auto cmd = false;
+bool is_cmd_stock(const std::string& body) {
+    return body.starts_with("/stock=");
+}
 
-    // Find the /stock command in the message body.
-    auto body = message->Body();
-
-    auto say = body;
-    if (body.rfind("/stock=", 0) != std::string::npos) {
-        auto stock = body.substr(body.find("=") + 1);
-        say = run_cmd_stock(stock);
-    }
-
-    return say;
+std::string parse_cmd_stock_arg(const std::string& body) {
+    return body.substr(body.find("=") + 1);
 }
 
 std::string parse_stock_price_from_csv(const std::string& csv) {
@@ -38,6 +31,9 @@ std::string parse_stock_price_from_csv(const std::string& csv) {
     std::cout << "debug: " << row;
 
     // Parse value for row.
+    // This is parsed backwards. Since the stock price column (close price) is
+    // the second to last one, find the last comma and then from there find the
+    // second to last comma and extract a substring from it.
     auto end = row.rfind(',');
     auto beg = row.rfind(',', end - 1) + 1;
     auto quote = row.substr(beg, end - beg);
@@ -46,8 +42,6 @@ std::string parse_stock_price_from_csv(const std::string& csv) {
 }
 
 std::string run_cmd_stock(const std::string& stock) {
-    //std::cout << "cmd: " << stock << std::endl;
-
     std::string csvResponse;
 
     // Make a request to Stooq using curlpp.
@@ -88,10 +82,10 @@ int main() {
     std::cout << "i1-bot debug messages" << std::endl;
 
     try {
-        std::cout << "connecting to broker" << std::endl;
+        std::cout << "info: connecting to broker" << std::endl;
         AmqpClient::Channel::ptr_t channel =
             AmqpClient::Channel::Create("localhost");
-        std::cout << "connected" << std::endl;
+        std::cout << "info: connected" << std::endl;
 
         // queue_name, passive, durable, exclusive, auto_delete
         auto tmpQueueName = channel->DeclareQueue("", false, false, true, false);
@@ -106,9 +100,21 @@ int main() {
 
             if (envelope) {
                 auto message = envelope->Message();
-                auto say = parse_cmd(message);
+                auto body = message->Body();
+                std::string response;
 
-                std::cout << "received: " << say << std::endl;
+                if (is_cmd_stock(body)) {
+                    std::cout << "debug: received command /stock" << std::endl;
+                    auto stock = parse_cmd_stock_arg(message->Body());
+                    auto say = run_cmd_stock(stock);
+
+                    AmqpClient::BasicMessage::ptr_t response =
+                        AmqpClient::BasicMessage::Create(say);
+
+                    channel->BasicPublish(exchangeName, routingKey, response);
+                } else {
+                    std::cout << "debug: received message" << std::endl;
+                }
             }
         }
     } catch (const std::exception& e) {
