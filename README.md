@@ -11,7 +11,7 @@ to get the stock quotes using a REST API provided by
 ## Technologies used
 - C++
 - AMQP (Assynchronous Message Queue Protocol)
-- WebSockets
+- WebSocket
 - STOMP (Simple Text Oriented Messaging Protocol)
 - REST 
 
@@ -25,7 +25,7 @@ to get the stock quotes using a REST API provided by
   - *rabbitmq-c* is a very commom C lib for this and used to be hosted by *rabbitmq* project in GitHub itself, now it's maintained separately. *SimpleAmqpClient* is a wrapper for *rabbitmq-c* developed by the same author
   - had to build manually
   - the developer says that was based on *pika* (more on that below)
-- *stomp.js* for the protocol above WebSockets
+- *stomp.js* for the protocol above WebSocket
 - *Python* 3.10 for some quicker PoCs (aware that it's not what is being avaliated but commiting anyway)
 - *pika* lib to communicate to *RabbitMQ* using *Python*
 
@@ -64,7 +64,7 @@ The architecture is shown in the diagram below:
 
 ![](i1-chat-arch.png)
 
-One of the requirements is to have the bot talking to the broker. The protocol used is AMQP 0-9-1 and the broker RabbitMQ. Since the requirement for how the client (web browser) should communicate with the back end is not defined, the idea is to have the client use the STOMP protocol over WebSockets, since STOMP is supported by RabbitMQ and WebSockets is supported by most modern browsers (Firefox, Chrome, etc.).
+One of the requirements is to have the bot talking to the broker. The protocol used is AMQP 0-9-1 and the broker RabbitMQ. Since the requirement for how the client (web browser) should communicate with the back end is not defined, the idea is to have the client use the STOMP protocol over WebSocket, since STOMP is supported by RabbitMQ and WebSocket is supported by most modern browsers (Firefox, Chrome, etc.).
 
 The AMQP 0-9-1 work with exchanges and queues. When starting the broker, some exchanges and queues are started automatically but should not be used. The exchange is like a mailman, which delivers the messages to the queues set.
 
