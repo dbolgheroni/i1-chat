@@ -26,6 +26,7 @@ to get the stock quotes using a REST API provided by
   - had to build manually
   - the developer says that was based on *pika* (more on that below)
 - *stomp.js* for the protocol above WebSocket
+- *Bootstrap* for the front end grid
 - *Python* 3.10 for some quicker PoCs (aware that it's not what is being avaliated but commiting anyway)
 - *pika* lib to communicate to *RabbitMQ* using *Python*
 
@@ -49,7 +50,7 @@ The rationale for the decisions taken was based on some variables I had no contr
 - **[<span style="color:green">finished</span>]** implement PoCs in Python to validate the architecture
 - **[<span style="color:green">finished</span>]** implement the backend
 - **[<span style="color:green">finished</span>]** implement the bot
-- **[<span style="color:yellow">started</span>]** implement the front end
+- **[<span style="color:green">finished</span>]** implement the front end
   - implemented a client written in Python to probe the backend
 - **[<span style="color:green">finished</span>]** this documentation
 - **[<span style="color:red">still missing</span>]** ordered by timestamp and showing last 50 messages
@@ -156,11 +157,10 @@ In Ubuntu 22.04, just make sure the `python3-pika` package is installed.
 ## Screenshot of a running session
 In this session, the *back end* panel is started and the first logs being outputted to stdout. In the *bot* panel, we can see that every message received in the chat is being logged also, but discarded until we receive a `/stock=AAPL.US` command. The *send* panel is being used to send the commands to the chat. The *listen room1* chat is being used to listen what's happening on *room1*.
 
+![](screenshot-user1.png)
+![](screenshot-user2.png)
 ![](screenshot-labeled.png)
 
 ## Caveats
 - Error handling should be improved. The routines in *i1-chat* (backend) and *i1-bot* that deal with the broker run mostly inside a big try-catch block. The TODO here is to understand better the exceptions raised by *SimpleAmqpClient* and adjust properly.
 - A refactor is missing. The rationale was to get everything working as fast as possible to refactor later.
-
-## What went wrong
-Tried to stick with C++ libs only and to SimpleAmqpClient in special, which had very poor documentation and is somehow not maintained anymore. This took a lot of time.

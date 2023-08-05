@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>i1-chat</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="mb-1">
+                    <h3>i1-chat <span class="badge text-bg-danger">Interview</span></h3>
+                    <textarea class="form-control" id="chat" rows="12"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row gx-1">
+            <div class="col-3">
+                <div class="input-group mb-1">
+                    <span class="input-group-text">@</span>
+                    <input type="text" class="form-control form-control-sm" placeholder="Username" aria-label="Username" id="username">
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="input-group mb-1">
+                    <input type="text" class="form-control form-control-sm" placeholder="Message" aria-label="Message" aria-describedby="button-addon2" id="message">
+                    <button class="btn btn-success" type="button" id="send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JavaScript (Optional, required for some components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Include jQuery library from CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include stomp.js library from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <script>
+        var url = "ws://localhost:15674/ws";
+        var client = Stomp.client(url);
+    
+        // not sure why they are NOT the same
+        //var client = Stomp.client('ws://127.0.0.1:15674/ws');
+        //var client = Stomp.client("ws://127.0.0.1/15674/ws");
+
+        var on_connect = function(x) {
+            console.log('connected to broker');
+            id = client.subscribe("/exchange/i1-chat/room1", function(d) {
+                console.log(d);
+                $("#chat").append(d.headers["username"] + ": " + d.body + "\n");
+            });
+        };
+
+        // connect error callback
+        var on_error =  function(e) {
+            console.log("error: ", e);
+        };
+
+        client.connect('guest', 'guest', on_connect, on_error, '/');
+
+        console.log($("#username"));
+        console.log($("#message"));
+        console.log($("#send"));
+        console.log($("#chat"));
+        $("#send").on("click", function() {
+            client.send(
+                "/exchange/i1-chat/room1",
+                {
+                    "content-type": "text/utf-8",
+                    "username": $("#username").val(),
+                },
+                $("#message").val());
+            //console.log($("#username").val());
+            //console.log($("#message").val());
+        });
+    </script>
+</body>
+</html>
