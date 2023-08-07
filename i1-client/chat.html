@@ -43,13 +43,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
     <script>
-        var url = "ws://localhost:15674/ws";
-        var client = Stomp.client(url);
-    
-        // not sure why they are NOT the same
-        //var client = Stomp.client('ws://127.0.0.1:15674/ws');
-        //var client = Stomp.client("ws://127.0.0.1/15674/ws");
+        var client = Stomp.client("ws://127.0.0.1:15674/ws");
 
+        // connect callback
         var on_connect = function(x) {
             console.log('connected to broker');
             id = client.subscribe("/exchange/i1-chat/room1", function(d) {
@@ -77,8 +73,6 @@
                     "username": $("#username").val(),
                 },
                 $("#message").val());
-            //console.log($("#username").val());
-            //console.log($("#message").val());
         });
     </script>
 </body>
