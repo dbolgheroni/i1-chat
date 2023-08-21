@@ -27,14 +27,13 @@ to get the stock quotes using a REST API provided by
   - the developer says that was based on *pika* (more on that below)
 - *stomp.js* for the protocol above WebSocket
 - *Bootstrap* for the front end grid
-- *Python* 3.10 for some quicker PoCs (aware that it's not what is being avaliated but commiting anyway)
+- *Python* 3.10 for some quicker PoCs (aware that it's not what is being evaluated but commiting anyway)
 - *pika* lib to communicate to *RabbitMQ* using *Python*
 
 ## Rationale
 The rationale for the decisions taken was based on some variables I had no control and henceforth I should prioritize some things over others:
 
 1) Time: The most constrained resource of most projects. Decisions were made prioritizing having a working software over a very well designed concept that doesn't work.
-2)
 
 ## The main components of the project
 - i1-chat: backend
